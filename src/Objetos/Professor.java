@@ -4,6 +4,8 @@ public class Professor extends Pessoa{
 
 	private String univFormacao;
 
+	public Professor(){}
+
 	public Professor(int codigo, String nome, String email, String univFormacao) {
 		super(codigo, nome, email);
 		this.univFormacao = univFormacao;

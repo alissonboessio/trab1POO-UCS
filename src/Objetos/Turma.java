@@ -6,9 +6,9 @@ public class Turma {
 	
 	private int codigo;
 	private String disciplina;
-	private Professor professor;	
-	private Aluno[] alunos;	
-	
+	private Professor professor;
+	private Aluno[] alunos;
+
 	private int qtdAlunos;
 	
 	public Turma() {
@@ -47,7 +47,14 @@ public class Turma {
 	}
 	
 	public int getQtdAlunos() {
-		return qtdAlunos;
+		return alunos.length;
 	}
-	
+
+	public Aluno[] getAlunos() {
+		return alunos;
+	}
+
+	public void setAlunos(Aluno[] alunos) {
+		this.alunos = alunos;
+	}
 }

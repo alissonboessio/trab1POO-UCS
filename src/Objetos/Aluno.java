@@ -6,16 +6,16 @@ public class Aluno extends Pessoa{
 	private double n1;
 	private double n2;
 	private double n3;
-	
+
+	public Aluno(){}
+
 	public Aluno(int codigo, String nome, String email, Curso curso, double n1, double n2, double n3) {
 		super(codigo, nome, email);
 		this.curso = curso;
 		this.n1 = n1;
 		this.n2 = n2;
 		this.n3 = n3;
-		
 	}
-	
 
 	public Aluno(int codigo, String nome, String email) {
 		super(codigo, nome, email);
@@ -56,8 +56,5 @@ public class Aluno extends Pessoa{
 	
 	public double calculaMedia() {	
 		return (n1 + n2 + n3) / 3;
-		
 	}
-	
-	
 }
