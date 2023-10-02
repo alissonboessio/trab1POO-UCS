@@ -22,7 +22,7 @@ public class Menu {
 	public void setCursos() {
 		cursos[0] = new Curso(1, "Ciência da Computação");
 		cursos[1] = new Curso(2, "Engenharia de Software");
-		cursos[2] = new Curso(3, "Engenharia de COmputação");
+		cursos[2] = new Curso(3, "Engenharia de Computação");
 		cursos[3] = new Curso(4, "Análise e Desenvolvimento de Sistemas");
 	}
 
@@ -56,10 +56,17 @@ public class Menu {
                 case 2 -> adicionaTurma();
                 case 3 -> {
                     int codigo = Util.leEntradaInt("Digite o código da turma: ");
-                    consultarTurmaPorCodigo(codigo - 1);
+                    consultarTurmaPorCodigo(codigo);
                 }
                 case 4 -> printDetalhesGerais();
                 case 5 -> {
+					String resposta = Util.leEntradaString("Deseja realmente sair? Digite S para sim ou N para não: ");
+					if(resposta.equalsIgnoreCase("N")){
+						opc = 0;
+                    }
+					else{
+						System.out.println("Programa encerrado.");
+					}
                 }
             }
 		} while(opc != 5);
@@ -68,16 +75,9 @@ public class Menu {
 	
 	private void adicionaTurma() { // OPÇÃO 2
 		if(this.qtdTurmas < MAX_TURMAS) {
-			System.out.println(this.qtdTurmas);
 			Turma turma = new Turma();
-			
 			System.out.println("Dados da turma:");
-			if(qtdTurmas == 0){
-				turma.setCodigo(qtdTurmas);
-			}
-			else{
-				turma.setCodigo(qtdTurmas++);
-			}
+			turma.setCodigo(qtdTurmas);
 			turma.setDisciplina(Util.leEntradaString("Nome da Disciplina: "));
 
 			// PROFESSOR
@@ -88,36 +88,47 @@ public class Menu {
 			}
 
 			if(profOption == 1){
-				printProfessores(); // printa as opções de professores cadastrados
-				int codigoProfessor = Util.leEntradaInt("Digite o código do professor desejado: "); // pedir para escolher o código do professor existente
-				turma.setProfessor(professores[codigoProfessor + 1]);// adicionar o professor existente à turma através do código escolhido
+				if(qtdProfessores > 0){
+					System.out.println("Professores cadastrados:");
+					printProfessores(); // printa as opções de professores cadastrados
+					int codigoProfessor = Util.leEntradaInt("Digite o código do professor desejado: "); // pedir para escolher o código do professor existente
+					turma.setProfessor(professores[codigoProfessor]);// adicionar o professor existente à turma através do código escolhido
+				}
+				else{
+					System.out.println("Ainda não há professores cadastrados. Você será redirecionado para a seção de cadastro de um novo professor.");
+					atribuirNovoProfessorATurma(turma);
+				}
 			}
 			else { // será 2 de qualquer forma
 				atribuirNovoProfessorATurma(turma);
 			}
 
 			// ALUNOS
-			Aluno[] alunos = new Aluno[0]; // atribuído como vetor da turma
-
+			Aluno[] alunos = new Aluno[30];
 			System.out.println();
-
 			int alunoOption = 0;
-			while(alunoOption != 3 && alunos.length <= 30){
-				alunoOption = Util.leEntradaInt("O que você deseja fazer?\n1- Atribuir um novo aluno à turma. 2- Ver alunos já cadastrados na turma. 3- Sair.");
+			int numAlunos = 0;
+			while(numAlunos <= 30){
+				alunoOption = Util.leEntradaInt("O que você deseja fazer?\n1- Atribuir um novo aluno à turma. 2- Ver alunos já cadastrados na turma. 3- Sair: ");
 				if(alunoOption == 1){
-					atribuirNovoAlunoATurma(alunos);
+					if(numAlunos < 30) {
+						Aluno aluno = novoAluno(numAlunos);
+						alunos[numAlunos] = aluno;
+						numAlunos++;
+					} else {
+						System.out.println("A turma já atingiu o limite de 30 alunos.");
+					}
 				}
 				else if(alunoOption == 2){
-					printAlunos(alunos);
+					printAlunos(alunos, numAlunos);
 				}
 				else if(alunoOption == 3){
 					break;
 				}
 			}
-
 			turma.setAlunos(alunos);
+			turma.setQtdAlunos(numAlunos);
 
-			// INCREMENTANDO
 			turmas[qtdTurmas] = turma;
 			qtdTurmas++;
 		}
@@ -132,30 +143,30 @@ public class Menu {
 		}
 		else{
 			System.out.println();
-			for(Professor professor : professores){
-				System.out.println("Professor #" + professor.getCodigo() +
-						" Nome: " + professor.getNome() +
-						" Email: " + professor.getEmail() +
-						" Universidade de formação: " + professor.getUnivFormacao() + "\n");
+			for(int i=0; i<qtdProfessores; i++){
+				System.out.println("Professor código: " + professores[i].getCodigo() +
+						" Nome: " + professores[i].getNome() +
+						" Email: " + professores[i].getEmail() +
+						" Universidade de formação: " + professores[i].getUnivFormacao() + "\n");
 			}
 		}
 	}
 
-	private void printAlunos(Aluno[] alunos){
-		if(alunos.length == 0){
+	private void printAlunos(Aluno[] alunos, int numAlunos){
+		if(numAlunos == 0){
 			System.out.println("Ainda não há alunos cadastrados.");
 		}
 		else{
 			System.out.println();
-			for(Aluno aluno : alunos){
-				System.out.println("Aluno #" + aluno.getCodigo() +
-						" Nome: " + aluno.getNome() +
-						" Email: " + aluno.getEmail() +
-						" N1: " + aluno.getN1() +
-						" N2: " + aluno.getN2() +
-						" N3: " + aluno.getN3() +
-						" Média: " + aluno.calculaMedia() +
-						(aluno.calculaMedia() >= 7.0 ? " Situação: Aprovado." : " Situação: Reprovado.\n"));
+			for(int i = 0; i<numAlunos; i++){
+				System.out.println("Aluno código: " + alunos[i].getCodigo() +
+						" Nome: " + alunos[i].getNome() +
+						" Email: " + alunos[i].getEmail() +
+						" N1: " + alunos[i].getN1() +
+						" N2: " + alunos[i].getN2() +
+						" N3: " + alunos[i].getN3() +
+						" Média: " + alunos[i].calculaMedia() +
+						(alunos[i].calculaMedia() >= 7.0 ? " Situação: Aprovado." : " Situação: Reprovado.\n"));
 			}
 		}
 	}
@@ -163,16 +174,16 @@ public class Menu {
 	private void printCursos(){
 		System.out.println();
 		for(Curso curso : cursos){
-			System.out.println("Curso #" + curso.getCodigo() +
-					" Nome: " + curso.getNome() + "\n");
+			System.out.println("Curso código: " + curso.getCodigo() +
+					" Nome: " + curso.getNome());
 		}
 	}
 
 	private void printTurmas(){ // OPÇÃO 1
-		if (isTurmasEmpty()){
+		if (!isTurmasEmpty()){
 			System.out.println();
-			for(Turma turma : turmas){
-				printTurmaSemAlunos(turma);
+			for(int i=0;i<qtdTurmas;i++){
+				printTurmaSemAlunos(turmas[i]);
 			}
 		}
 		else{
@@ -181,50 +192,46 @@ public class Menu {
 	}
 
 	private void printTurma(Turma turma){
-		System.out.println("Turma #" + turma.getCodigo() +
-				" Disciplina: " + turma.getDisciplina() +
-				" Professor: " + turma.getProfessor().getNome() +
-				" Quantidade de alunos: " + turma.getQtdAlunos());
+		System.out.println("Turma código: " + turma.getCodigo() +
+				"\nDisciplina: " + turma.getDisciplina() +
+				"\nProfessor: " + turma.getProfessor().getNome() +
+				"\nQuantidade de alunos: " + turma.getQtdAlunos());
 		System.out.println("\nAlunos:");
-		printAlunos(turma.getAlunos());
+		printAlunos(turma.getAlunos(), turma.getQtdAlunos());
 	}
 
 	private void printTurmaSemAlunos(Turma turma){
-		System.out.println("Turma #" + turma.getCodigo() +
-				" Disciplina: " + turma.getDisciplina() +
-				" Professor: " + turma.getProfessor().getNome() +
-				" Quantidade de alunos matriculados: " + turma.getQtdAlunos());
+		System.out.println("Turma código: " + turma.getCodigo() +
+				"\nDisciplina: " + turma.getDisciplina() +
+				"\nProfessor: " + turma.getProfessor().getNome() +
+				"\nQuantidade de alunos matriculados: " + turma.getQtdAlunos());
 	}
 
 	private void atribuirNovoProfessorATurma(Turma turma){
 		Professor professorNovo = new Professor();
-		professorNovo.setCodigo(professores.length + 1);
+		professorNovo.setCodigo(qtdProfessores);
 		professorNovo.setNome(Util.leEntradaString("Nome do professor: "));
 		professorNovo.setEmail(Util.leEntradaString("Email do professor: "));
 		professorNovo.setUnivFormacao(Util.leEntradaString("Universidade de formação do professor: "));
 		turma.setProfessor(professorNovo);
+
+		professores[qtdProfessores] = professorNovo;
+		qtdProfessores++;
 	}
 
-	private void atribuirNovoAlunoATurma(Aluno[] alunos){
+	private Aluno novoAluno(int codigo) {
 		Aluno aluno = new Aluno();
-		aluno.setCodigo(alunos.length + 1);
+		aluno.setCodigo(codigo);
 		aluno.setNome(Util.leEntradaString("Nome do aluno: "));
 		aluno.setEmail(Util.leEntradaString("Email do aluno: "));
-		aluno.setN1(Util.leEntradaDouble("Nota N1: "));
+		aluno.setN1(Util.leEntradaDouble("Nota N1: ")); // atribuir valor double com , e não .
 		aluno.setN2(Util.leEntradaDouble("Nota N2: "));
 		aluno.setN3(Util.leEntradaDouble("Nota N3: "));
 
 		printCursos();
 		int codigoCurso = Util.leEntradaInt("Qual o código do curso do aluno? ");
-		aluno.setCurso(cursos[codigoCurso-1]);
-
-		///// !!!! aqui está dando problema, na hora de adicionar o aluno ao vetor de alunos, que posteriormente será atribuído à turma
-		if(alunos.length == 0){
-			alunos[alunos.length] = aluno;
-		}
-		else{
-			alunos[alunos.length + 1] = aluno;
-		}
+		aluno.setCurso(cursos[codigoCurso - 1]);
+		return aluno;
 	}
 
 	private void consultarTurmaPorCodigo(int codigo){ // OPÇÃO 3
@@ -236,22 +243,27 @@ public class Menu {
 		// para cada turma
 		int qteMatriculadosInstituicao = 0;
 		double percentualAprovacaoTurmas = 0;
-		for(Turma turma : turmas){
-			printTurmaSemAlunos(turma);
+		for(int i=0;i<qtdTurmas;i++){
+			printTurmaSemAlunos(turmas[i]);
 			int qteAprovados = 0;
-			for(Aluno aluno : turma.getAlunos()){
+			for(int j=0; j<turmas[i].getQtdAlunos(); j++){
 				qteMatriculadosInstituicao++;
-				if(aluno.calculaMedia() >= 7){
+				if(turmas[i].getAlunos()[j].calculaMedia() >= 7){
 					qteAprovados++;
 				}
 			}
-			System.out.println("\nQuantidade de aprovados: " + qteAprovados);
-			System.out.println("\nPorcentagem de aprovação: " + qteAprovados/turma.getAlunos().length * 100 + "%");
-			percentualAprovacaoTurmas += (double) qteAprovados /turma.getAlunos().length * 100;
+			System.out.println("Quantidade de aprovados: " + qteAprovados);
+			System.out.println("Porcentagem de aprovação: " + qteAprovados/turmas[i].getQtdAlunos() * 100 + "%\n");
+			if(turmas[i].getQtdAlunos() > 0){ // para não gerar erro de /zero
+				percentualAprovacaoTurmas += (double) qteAprovados /turmas[i].getQtdAlunos() * 100;
+			}
 		}
+
 		// Dados gerais da instituição
-		System.out.println("\nDados gerais da instituição\n");
-		System.out.println("\nQuantidade de alunos matriculados na instituição: " + qteMatriculadosInstituicao);
-		System.out.println("\nMédia de aprovação nas turmas da instituição: " + percentualAprovacaoTurmas/turmas.length + "%");
+		System.out.println("-- Dados gerais da instituição --");
+		System.out.println("Quantidade de alunos matriculados na instituição: " + qteMatriculadosInstituicao);
+		if(qtdTurmas > 0){ // para não gerar erro de /zero
+			System.out.println("Média de aprovação nas turmas da instituição: " + percentualAprovacaoTurmas/qtdTurmas + "%");
+		}
 	}
 }

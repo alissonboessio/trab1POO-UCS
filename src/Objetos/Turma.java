@@ -47,7 +47,11 @@ public class Turma {
 	}
 	
 	public int getQtdAlunos() {
-		return alunos.length;
+		return qtdAlunos;
+	}
+
+	public void setQtdAlunos(int qtdAlunos) {
+		this.qtdAlunos = qtdAlunos;
 	}
 
 	public Aluno[] getAlunos() {
