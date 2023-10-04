@@ -59,4 +59,16 @@ public class Aluno extends Pessoa{
 	public double calculaMedia() {
 		return (n1 + n2 + n3) / 3.0;
 	}
+	
+	public String printAlunoAprRepr() {
+		return "Aluno código: " + this.getCodigo() +
+				" Nome: " + this.getNome() +
+				" Email: " + this.getEmail() +
+				" N1: " + this.getN1() +
+				" N2: " + this.getN2() +
+				" N3: " + this.getN3() +
+				" Média: " + Math.floor(this.calculaMedia()) +
+				(this.calculaMedia() >= 7.0 ? " Situação: Aprovado." : " Situação: Reprovado.\n");
+	}
+
 }

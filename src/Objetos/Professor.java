@@ -18,6 +18,14 @@ public class Professor extends Pessoa{
 	public void setUnivFormacao(String univFormacao) {
 		this.univFormacao = univFormacao;
 	}
+
+	@Override
+	public String toString() {
+		return "Professor código: " + this.getCodigo() +
+				" Nome: " + this.getNome() +
+				" Email: " + this.getEmail() +
+				" Universidade de formação: " + this.getUnivFormacao() + "\n";
+	}
 	
 	
 	

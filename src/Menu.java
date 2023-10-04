@@ -8,9 +8,9 @@ import Util.Util;
 
 public class Menu {
 	
-	private static final int MAX_TURMAS = 10;
+	private static final int MAX_TURMAS = 1;
 	private static final int MAX_CURSOS = 4;
-	private static final int MAX_PROFESSORES = 100;
+	private static final int MAX_PROFESSORES = MAX_TURMAS;
 
 	protected int qtdTurmas = 0;
 	protected int qtdProfessores = 0;
@@ -19,7 +19,7 @@ public class Menu {
 	private static final Turma[] turmas = new Turma[MAX_TURMAS];
 	private static final Professor[] professores = new Professor[MAX_PROFESSORES];
 	
-	public void setCursos() {
+	public void initCursos() {
 		cursos[0] = new Curso(1, "Ciência da Computação");
 		cursos[1] = new Curso(2, "Engenharia de Software");
 		cursos[2] = new Curso(3, "Engenharia de Computação");
@@ -38,6 +38,7 @@ public class Menu {
 		Scanner in = new Scanner(System.in);
 		int opc;
 		do {
+			
 			System.out.println("------------------------------------------------------------");
 			System.out.println("Instituição TI");
 			System.out.println("------------------------------------------------------------");
@@ -49,14 +50,26 @@ public class Menu {
 			System.out.println("5) Sair do sistema");
 			System.out.println("------------------------------------------------------------");
 			
-			opc = in.nextInt();
+			opc = Util.leEntradaInt("");
 
             switch (opc) {
                 case 1 -> printTurmas();
                 case 2 -> adicionaTurma();
                 case 3 -> {
-                    int codigo = Util.leEntradaInt("Digite o código da turma: ");
-                    consultarTurmaPorCodigo(codigo);
+                	if(qtdTurmas > 0) {
+                		printTurmasCodigo();                    	
+                    	do {
+                    		if(consultarTurmaPorCodigo(Util.leEntradaString("Digite o código da turma: "))){;
+                    			break;
+                    		}
+                    		
+                    	}while(true);                        
+                        
+                	}else {
+                		System.out.println("Ainda nao ha turmas cadastradas!");
+                	}
+                	Util.esperaEntrada();
+                	
                 }
                 case 4 -> printDetalhesGerais();
                 case 5 -> {
@@ -77,7 +90,7 @@ public class Menu {
 		if(this.qtdTurmas < MAX_TURMAS) {
 			Turma turma = new Turma();
 			System.out.println("Dados da turma:");
-			turma.setCodigo(qtdTurmas);
+			turma.setCodigo(Util.leEntradaString("Codigo da Turma: "));
 			turma.setDisciplina(Util.leEntradaString("Nome da Disciplina: "));
 
 			// PROFESSOR
@@ -104,30 +117,25 @@ public class Menu {
 			}
 
 			// ALUNOS
-			Aluno[] alunos = new Aluno[30];
 			System.out.println();
 			int alunoOption = 0;
-			int numAlunos = 0;
-			while(numAlunos <= 30){
+			do{
 				alunoOption = Util.leEntradaInt("O que você deseja fazer?\n1- Atribuir um novo aluno à turma. 2- Ver alunos já cadastrados na turma. 3- Sair: ");
 				if(alunoOption == 1){
-					if(numAlunos < 30) {
-						Aluno aluno = novoAluno(numAlunos);
-						alunos[numAlunos] = aluno;
-						numAlunos++;
-					} else {
-						System.out.println("A turma já atingiu o limite de 30 alunos.");
+					if(turma.getQtdAlunosRestante() > 0) {
+						if(!turma.addAluno(novoAluno(turma.getQtdAlunos()))) {
+						break;
+					} 
+					}else{
+						System.out.println("Limite de alunos atingido!");
 					}
+					
 				}
 				else if(alunoOption == 2){
-					printAlunos(alunos, numAlunos);
+					System.out.println(turma.printAlunos());					
 				}
-				else if(alunoOption == 3){
-					break;
-				}
-			}
-			turma.setAlunos(alunos);
-			turma.setQtdAlunos(numAlunos);
+				
+			}while(alunoOption != 3);
 
 			turmas[qtdTurmas] = turma;
 			qtdTurmas++;
@@ -144,38 +152,16 @@ public class Menu {
 		else{
 			System.out.println();
 			for(int i=0; i<qtdProfessores; i++){
-				System.out.println("Professor código: " + professores[i].getCodigo() +
-						" Nome: " + professores[i].getNome() +
-						" Email: " + professores[i].getEmail() +
-						" Universidade de formação: " + professores[i].getUnivFormacao() + "\n");
+				System.out.println(professores[i]);
 			}
-		}
-	}
-
-	private void printAlunos(Aluno[] alunos, int numAlunos){
-		if(numAlunos == 0){
-			System.out.println("Ainda não há alunos cadastrados.");
-		}
-		else{
-			System.out.println();
-			for(int i = 0; i<numAlunos; i++){
-				System.out.println("Aluno código: " + alunos[i].getCodigo() +
-						" Nome: " + alunos[i].getNome() +
-						" Email: " + alunos[i].getEmail() +
-						" N1: " + alunos[i].getN1() +
-						" N2: " + alunos[i].getN2() +
-						" N3: " + alunos[i].getN3() +
-						" Média: " + alunos[i].calculaMedia() +
-						(alunos[i].calculaMedia() >= 7.0 ? " Situação: Aprovado." : " Situação: Reprovado.\n"));
-			}
+			
 		}
 	}
 
 	private void printCursos(){
 		System.out.println();
 		for(Curso curso : cursos){
-			System.out.println("Curso código: " + curso.getCodigo() +
-					" Nome: " + curso.getNome());
+			System.out.println(curso);
 		}
 	}
 
@@ -183,30 +169,26 @@ public class Menu {
 		if (!isTurmasEmpty()){
 			System.out.println();
 			for(int i=0;i<qtdTurmas;i++){
-				printTurmaSemAlunos(turmas[i]);
+				System.out.println(turmas[i].printAlunosSemTurma());
+			}
+		}
+		else{
+			System.out.println("Ainda não há turmas cadastradas.");
+		}
+	}	
+
+	private void printTurmasCodigo(){
+		if (!isTurmasEmpty()){
+			System.out.println();
+			for(int i=0;i<qtdTurmas;i++){
+				System.out.println("Turma: " + turmas[i].getCodigo() + " - " + turmas[i].getDisciplina());
 			}
 		}
 		else{
 			System.out.println("Ainda não há turmas cadastradas.");
 		}
 	}
-
-	private void printTurma(Turma turma){
-		System.out.println("Turma código: " + turma.getCodigo() +
-				"\nDisciplina: " + turma.getDisciplina() +
-				"\nProfessor: " + turma.getProfessor().getNome() +
-				"\nQuantidade de alunos: " + turma.getQtdAlunos());
-		System.out.println("\nAlunos:");
-		printAlunos(turma.getAlunos(), turma.getQtdAlunos());
-	}
-
-	private void printTurmaSemAlunos(Turma turma){
-		System.out.println("Turma código: " + turma.getCodigo() +
-				"\nDisciplina: " + turma.getDisciplina() +
-				"\nProfessor: " + turma.getProfessor().getNome() +
-				"\nQuantidade de alunos matriculados: " + turma.getQtdAlunos());
-	}
-
+	
 	private void atribuirNovoProfessorATurma(Turma turma){
 		Professor professorNovo = new Professor();
 		professorNovo.setCodigo(qtdProfessores);
@@ -228,15 +210,29 @@ public class Menu {
 		aluno.setN2(Util.leEntradaDouble("Nota N2: "));
 		aluno.setN3(Util.leEntradaDouble("Nota N3: "));
 
-		printCursos();
-		int codigoCurso = Util.leEntradaInt("Qual o código do curso do aluno? ");
-		aluno.setCurso(cursos[codigoCurso - 1]);
+		
+		do {
+			printCursos();
+			int codigoCurso = Util.leEntradaInt("Qual o código do curso do aluno? ");
+			if(codigoCurso < 1 || codigoCurso > 4) {
+				System.out.println("Curso inexistente!");
+				continue;
+			}
+			aluno.setCurso(cursos[codigoCurso - 1]);
+			break;
+		}while(true);
+		
 		return aluno;
 	}
 
-	private void consultarTurmaPorCodigo(int codigo){ // OPÇÃO 3
-		Turma turma = turmas[codigo];
-		printTurma(turma);
+	private boolean consultarTurmaPorCodigo(String codigo){ // OPÇÃO 3
+		for (int i = 0; i < turmas.length; i++) {
+			if(turmas[i].getCodigo().equalsIgnoreCase(codigo)) {
+				System.out.println(turmas[i]);
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void printDetalhesGerais(){ // OPÇÃO 4
@@ -244,19 +240,18 @@ public class Menu {
 		int qteMatriculadosInstituicao = 0;
 		double percentualAprovacaoTurmas = 0;
 		for(int i=0;i<qtdTurmas;i++){
-			printTurmaSemAlunos(turmas[i]);
-			int qteAprovados = 0;
-			for(int j=0; j<turmas[i].getQtdAlunos(); j++){
-				qteMatriculadosInstituicao++;
-				if(turmas[i].getAlunos()[j].calculaMedia() >= 7){
-					qteAprovados++;
-				}
-			}
-			System.out.println("Quantidade de aprovados: " + qteAprovados);
-			System.out.println("Porcentagem de aprovação: " + qteAprovados/turmas[i].getQtdAlunos() * 100 + "%\n");
-			if(turmas[i].getQtdAlunos() > 0){ // para não gerar erro de /zero
-				percentualAprovacaoTurmas += (double) qteAprovados /turmas[i].getQtdAlunos() * 100;
-			}
+			System.out.println(turmas[i].printAlunosSemTurma());
+			
+			if(turmas[i].getQtdAlunos() <= 0){ // para não gerar erro de /zero
+				continue;
+			}			
+
+			percentualAprovacaoTurmas += (double) turmas[i].getQtdAprovados() /turmas[i].getQtdAlunos() * 100;
+		
+			System.out.println("Quantidade de aprovados: " + turmas[i].getQtdAprovados());
+			System.out.println("Porcentagem de aprovação: " + turmas[i].getQtdAprovados()/turmas[i].getQtdAlunos() * 100 + "%\n");
+					
+			qteMatriculadosInstituicao += turmas[i].getQtdAlunos();
 		}
 
 		// Dados gerais da instituição
@@ -265,5 +260,6 @@ public class Menu {
 		if(qtdTurmas > 0){ // para não gerar erro de /zero
 			System.out.println("Média de aprovação nas turmas da instituição: " + percentualAprovacaoTurmas/qtdTurmas + "%");
 		}
+		Util.esperaEntrada();
 	}
 }

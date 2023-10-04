@@ -26,6 +26,10 @@ public class Curso {
 		this.nome = nome;
 	}
 	
+	public String toString() {
+		return "Curso código: " + this.getCodigo() +
+				" Nome: " + this.getNome();
+	}
 	
 	
 }

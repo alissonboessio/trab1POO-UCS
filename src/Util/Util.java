@@ -55,4 +55,10 @@ public final class Util {
 		}while(!leu);
 		return var;
 	}
+	
+	public static void esperaEntrada() {
+		Scanner in = new Scanner(System.in);
+		System.out.println("Aperte qualquer tecla para continuar...");
+		in.nextLine();
+	}
 }
